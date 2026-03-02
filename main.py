@@ -45,7 +45,7 @@ app = FastAPI(
 # -----------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change in production if needed
+    allow_origins=["https://dillipkrpanda-commits.github.io"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -181,4 +181,5 @@ async def send_resume(
 def get_resume_logs(db: Session = Depends(get_db)):
     logs = db.query(ResumeLog).all()
     return logs
+
 

@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+sendgrid
+python-dotenv
+sqlalchemy
+psycopg2-binary
+slowapi

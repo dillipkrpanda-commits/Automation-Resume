@@ -135,12 +135,65 @@ async def send_resume(
         message = Mail(
             from_email=sender_email,
             to_emails=data.email,
-            subject=f"Dillip Panda | Resume for {data.role}",
+            subject="Application | Senior Power BI Developer | Dillip Kumar Panda",
             html_content=f"""
-                <p>Hi {data.name},</p>
-                <p>Please find my resume attached for the {data.role} position.</p>
-                <p>Best regards,<br>Dillip Panda</p>
-            """,
+<p>Dear Hiring Team,</p>
+
+<p>
+I hope this message finds you well.
+</p>
+
+<p>
+I am writing to express my interest in the <strong>PowerBi Developer</strong> opportunity.
+With extensive experience as a <strong>Senior Power BI Developer</strong>,
+I specialize in designing enterprise-grade dashboards, advanced DAX models,
+KPI intelligence frameworks, and scalable BI architectures that drive strategic decision-making.
+</p>
+
+<p>
+Across my professional journey, I have:
+<ul>
+<li>Designed and delivered 40+ enterprise dashboards</li>
+<li>Built scalable data models optimized for performance</li>
+<li>Developed custom Power BI visuals and AI-integrated analytics systems</li>
+<li>Enabled leadership teams with actionable, executive-ready insights</li>
+</ul>
+</p>
+
+<p>
+I believe my expertise in Power BI architecture, Azure data platforms,
+advanced DAX optimization, and BI governance aligns strongly with roles
+that demand both technical depth and business impact.
+</p>
+
+<p>
+Please find my resume attached for your review.
+</p>
+
+<p>
+You can also explore my work and portfolio here:<br>
+🔗 Portfolio: 
+<a href="https://dillipkrpanda-commits.github.io/">
+https://dillipkrpanda-commits.github.io/
+</a><br>
+🔗 LinkedIn: 
+<a href="https://www.linkedin.com/in/dilip-kumar-panda-3a848715b/">
+https://www.linkedin.com/in/dilip-kumar-panda-3a848715b/
+</a>
+</p>
+
+<p>
+I would welcome the opportunity to further discuss how my experience can add value to your team.
+</p>
+
+<br>
+
+<p>
+Kind regards,<br>
+<strong>Dillip Kumar Panda</strong><br>
+Senior Power BI Developer
+</p>
+""",
         )
 
         # 4️⃣ Attach Resume
@@ -181,5 +234,6 @@ async def send_resume(
 def get_resume_logs(db: Session = Depends(get_db)):
     logs = db.query(ResumeLog).all()
     return logs
+
 
 

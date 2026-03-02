@@ -96,7 +96,7 @@ class ResumeRequest(BaseModel):
 # -----------------------------
 # Root Endpoint
 # -----------------------------
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def home():
     return {"message": "Resume Automation API is live 🚀"}
 
@@ -181,3 +181,4 @@ async def send_resume(
 def get_resume_logs(db: Session = Depends(get_db)):
     logs = db.query(ResumeLog).all()
     return logs
+

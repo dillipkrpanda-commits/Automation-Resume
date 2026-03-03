@@ -57,8 +57,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-Important:
-
 
 # -----------------------------
 # Create Database Tables
@@ -242,6 +240,7 @@ Senior Power BI Developer
 def get_resume_logs(db: Session = Depends(get_db)):
     logs = db.query(ResumeLog).all()
     return logs
+
 
 
 

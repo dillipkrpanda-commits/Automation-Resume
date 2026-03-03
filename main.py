@@ -45,11 +45,19 @@ app = FastAPI(
 # -----------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://dillipkrpanda-commits.github.io"],
+    allow_origins=[
+        "http://dillipkumarpanda.in",
+        "https://dillipkumarpanda.in",
+        "http://www.dillipkumarpanda.in",
+        "https://www.dillipkumarpanda.in",
+        "https://dillipkrpanda-commits.github.io"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+Important:
 
 
 # -----------------------------
@@ -234,6 +242,7 @@ Senior Power BI Developer
 def get_resume_logs(db: Session = Depends(get_db)):
     logs = db.query(ResumeLog).all()
     return logs
+
 
 
 

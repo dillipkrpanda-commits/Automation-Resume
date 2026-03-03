@@ -1,5 +1,4 @@
 import os
-import base64
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.responses import JSONResponse
@@ -93,10 +92,10 @@ def get_db():
 # -----------------------------
 # Request Schema
 # -----------------------------
-class ResumeRequest(BaseModel):
+class ContactRequest(BaseModel):
     name: str
     email: EmailStr
-    role: str
+    message: str
 
 
 # -----------------------------
@@ -110,24 +109,24 @@ def home():
 # -----------------------------
 # Send Resume Endpoint
 # -----------------------------
-@app.post("/send-resume")
+@app.post("/contact")
 @limiter.limit("5/minute")
-async def send_resume(
+async def contact(
     request: Request,
-    data: ResumeRequest,
+    data: ContactRequest,
     db: Session = Depends(get_db)
 ):
     try:
-        # 1️⃣ Log request to database
+        # 1️⃣ Log inquiry to database
         log_entry = ResumeLog(
             name=data.name,
             email=data.email,
-            role=data.role
+            role=data.message  # reuse existing column
         )
         db.add(log_entry)
         db.commit()
 
-        # 2️⃣ Validate Environment Variables
+        # 2️⃣ Validate environment variables
         sendgrid_key = os.getenv("SENDGRID_API_KEY")
         sender_email = os.getenv("SENDER_EMAIL")
 
@@ -137,101 +136,50 @@ async def send_resume(
                 detail="Email service not configured properly."
             )
 
-        # 3️⃣ Prepare Email
+        # 3️⃣ Build Email
         message = Mail(
-            from_email=sender_email,
-            to_emails=data.email,
-            subject="Application | Senior Power BI Developer | Dillip Kumar Panda",
+            from_email=("Portfolio Contact", sender_email),
+            to_emails="contact@dillipkumarpanda.in",
+            subject=f"New Portfolio Inquiry from {data.name}",
             html_content=f"""
-<p>Dear Hiring Team,</p>
+            <h3>New Portfolio Inquiry</h3>
 
-<p>
-I hope this message finds you well.
-</p>
+            <p><strong>Name:</strong> {data.name}</p>
+            <p><strong>Email:</strong> {data.email}</p>
+            <p><strong>Message:</strong></p>
+            <p>{data.message}</p>
 
-<p>
-I am writing to express my interest in the <strong>PowerBi Developer</strong> opportunity.
-With extensive experience as a <strong>Senior Power BI Developer</strong>,
-I specialize in designing enterprise-grade dashboards, advanced DAX models,
-KPI intelligence frameworks, and scalable BI architectures that drive strategic decision-making.
-</p>
+            <hr>
+            <p>This message was submitted from your website.</p>
+            """,
+            plain_text_content=f"""
+            New Portfolio Inquiry
 
-<p>
-Across my professional journey, I have:
-<ul>
-<li>Designed and delivered 40+ enterprise dashboards</li>
-<li>Built scalable data models optimized for performance</li>
-<li>Developed custom Power BI visuals and AI-integrated analytics systems</li>
-<li>Enabled leadership teams with actionable, executive-ready insights</li>
-</ul>
-</p>
+            Name: {data.name}
+            Email: {data.email}
 
-<p>
-I believe my expertise in Power BI architecture, Azure data platforms,
-advanced DAX optimization, and BI governance aligns strongly with roles
-that demand both technical depth and business impact.
-</p>
-
-<p>
-Please find my resume attached for your review.
-</p>
-
-<p>
-You can also explore my work and portfolio here:<br>
-🔗 Portfolio: 
-<a href="https://dillipkrpanda-commits.github.io/">
-https://dillipkrpanda-commits.github.io/
-</a><br>
-🔗 LinkedIn: 
-<a href="https://www.linkedin.com/in/dilip-kumar-panda-3a848715b/">
-https://www.linkedin.com/in/dilip-kumar-panda-3a848715b/
-</a>
-</p>
-
-<p>
-I would welcome the opportunity to further discuss how my experience can add value to your team.
-</p>
-
-<br>
-
-<p>
-Kind regards,<br>
-<strong>Dillip Kumar Panda</strong><br>
-Senior Power BI Developer
-</p>
-""",
+            Message:
+            {data.message}
+            """
         )
 
-        # 4️⃣ Attach Resume
-        resume_path = "resume/Dillip_Panda_Resume.pdf"
+        # 🔥 Important — allows you to click Reply
+        message.reply_to = data.email
 
-        if not os.path.exists(resume_path):
-            raise HTTPException(status_code=500, detail="Resume file not found.")
-
-        with open(resume_path, "rb") as f:
-            encoded_file = base64.b64encode(f.read()).decode()
-
-        attachment = Attachment(
-            FileContent(encoded_file),
-            FileName("Dillip_Panda_Resume.pdf"),
-            FileType("application/pdf"),
-            Disposition("attachment")
-        )
-
-        message.attachment = attachment
-
-        # 5️⃣ Send Email
+        # 4️⃣ Send email
         sg = SendGridAPIClient(sendgrid_key)
         response = sg.send(message)
 
         if response.status_code != 202:
-            raise HTTPException(status_code=500, detail="Email failed to send.")
+            raise HTTPException(
+                status_code=500,
+                detail="Email failed to send."
+            )
 
-        return {"status": "Resume sent successfully"}
+        return {"status": "Message sent successfully"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 # -----------------------------
 # Analytics Endpoint
@@ -240,6 +188,7 @@ Senior Power BI Developer
 def get_resume_logs(db: Session = Depends(get_db)):
     logs = db.query(ResumeLog).all()
     return logs
+
 
 
 
